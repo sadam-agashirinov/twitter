@@ -41,6 +41,7 @@ namespace TwitterApi.Core
             app.UseSwagger(option => { option.RouteTemplate = swaggerSettings.JsonRoute; });
             app.UseSwaggerUI(option => option.SwaggerEndpoint(swaggerSettings.UIEndpoint, swaggerSettings.Description));
 
+            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

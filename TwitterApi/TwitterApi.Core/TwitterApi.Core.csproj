@@ -22,5 +22,9 @@
     <ProjectReference Include="..\TwitterApi.DataLayer\TwitterApi.DataLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\" />
+  </ItemGroup>
+
 
 </Project>

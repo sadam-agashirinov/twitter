@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using TwitterApi.DataLayer.Settings;
 using TwitterApi.DataLayer.Utils;
 
 namespace TwitterApi.Core.Installers
@@ -12,6 +14,8 @@ namespace TwitterApi.Core.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
+
+            JwtSettings.Init(configuration.GetSection(nameof(JwtSettings)));
 
             services.AddSwaggerGen(x =>
                 {
@@ -57,6 +61,15 @@ namespace TwitterApi.Core.Installers
                     }
                 }
             );
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = JwtTokenUtils.CreateTokenValidationParameters();
+            });
         }
     }
 }
