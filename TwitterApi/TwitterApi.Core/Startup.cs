@@ -1,15 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using TwitterApi.Core.Installers;
+using TwitterApi.DataLayer.Settings;
 
 namespace TwitterApi.Core
 {
@@ -25,7 +20,7 @@ namespace TwitterApi.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.InstallServicesInAssembly(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +34,12 @@ namespace TwitterApi.Core
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            var swaggerSettings = new SwaggerSettings();
+            Configuration.GetSection(nameof(SwaggerSettings)).Bind(swaggerSettings);
+
+            app.UseSwagger(option => { option.RouteTemplate = swaggerSettings.JsonRoute; });
+            app.UseSwaggerUI(option => option.SwaggerEndpoint(swaggerSettings.UIEndpoint, swaggerSettings.Description));
 
             app.UseAuthorization();
 
