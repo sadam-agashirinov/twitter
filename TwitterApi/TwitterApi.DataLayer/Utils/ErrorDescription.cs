@@ -8,5 +8,10 @@
 
         public const string UserNotFound = "Пользователь не найден.";
         public const string UserPasswordIncorrect = "Неверный пароль.";
+        public const string UserLoginExist = "Пользователь с таким логином существует.";
+
+        public const string InvalidAccessToken = "Не валидный токен.";
+        public const string RefreshTokenNotFound = "Токен обновления не найден.";
+        public const string RefreshTokenExpired = "Истек срок токена обновления.";
     }
 }

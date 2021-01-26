@@ -1,15 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 using TwitterApi.Core.Contracts.Account;
 using TwitterApi.Core.Contracts.Common;
 using TwitterApi.DataLayer.Common;
 using TwitterApi.DataLayer.Entities.Models;
 using TwitterApi.DataLayer.Settings;
 using TwitterApi.DataLayer.Utils;
+using WebApi.DataLayer.Extensions;
 
 namespace TwitterApi.Core.Controllers
 {
@@ -22,7 +23,7 @@ namespace TwitterApi.Core.Controllers
     public class AccountController : ControllerBase
     {
         private TwitterDbContext _dbContext;
-        
+
         /// <summary>
         /// Контроллер авторизации и регистрации аккаунта
         /// </summary>
@@ -36,13 +37,15 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.Registration)]
-        public async Task<ActionResult<RegistrationResponseData>> Registration(RegistrationRequestData requestData)
+        public async Task<ActionResult<RegistrationResponseData>> Registration([FromForm] RegistrationRequestData requestData)
         {
             try
             {
                 var validationResult = await requestData.ValidateAsync();
-
                 if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Login == requestData.Login.ToLower());
+                if (user != null) return BadRequest(ErrorDescription.UserLoginExist);
 
                 var newUser = new Users
                 {
@@ -92,7 +95,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.Authenticate)]
-        public async Task<ActionResult<AuthenticateResponseData>> Authenticate(AuthenticateRequestData requestData)
+        public async Task<ActionResult<AuthenticateResponseData>> Authenticate([FromForm] AuthenticateRequestData requestData)
         {
             try
             {
@@ -141,13 +144,58 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Обновления рефреш токена
+        /// Обновления токена
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.RefreshToken)]
-        public async Task<ActionResult> RefreshToken()
+        public async Task<ActionResult<RefreshTokenResponseData>> RefreshToken([FromForm] RefreshTokenRequestData requestData)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var validator = await requestData.ValidateAsync();
+                if (!validator.IsValid) return BadRequest(validator.Errors);
+
+                if (!JwtTokenUtils.ValidateToken(requestData.AccessToken)) return BadRequest(ErrorDescription.InvalidAccessToken);
+
+                var authUser = JwtTokenUtils.CreateAuthenticatedUserInfo(requestData.AccessToken);
+
+                var refreshToken =
+                    await _dbContext.Tokens.SingleOrDefaultAsync(x =>
+                        x.UserId == authUser.Id && x.RefreshToken == requestData.RefreshToken && !x.Used);
+
+                if (refreshToken is null) return BadRequest(ErrorDescription.RefreshTokenNotFound);
+                if (refreshToken.IsExpired()) return BadRequest(ErrorDescription.RefreshTokenExpired);
+
+                var principal = JwtTokenUtils.GetClaimsPrincipal(requestData.AccessToken);
+                var newAccessToken = JwtTokenUtils.GenerateAccessToken(principal);
+                var newRefreshToken = JwtTokenUtils.GenerateRefreshToken();
+
+                var newRefreshTokenEntity = new Tokens
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = authUser.Id,
+                    RefreshToken = newRefreshToken,
+                    ExpireTime = DateTime.Now.AddDays(JwtSettings.Instance.RefreshTokenLifeTime),
+                    Used = false
+                };
+
+                refreshToken.Used = true;
+
+                _dbContext.Entry(newRefreshTokenEntity).State = EntityState.Added;
+                _dbContext.Entry(refreshToken).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                return new RefreshTokenResponseData
+                {
+                    AccessToken = newAccessToken,
+                    RefreshToken = newRefreshToken
+                };
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
         }
     }
 }
