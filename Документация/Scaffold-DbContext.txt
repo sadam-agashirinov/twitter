@@ -1,0 +1,1 @@
+Scaffold-DbContext "Server=127.0.0.1;Port=5432;Database=Twitter;User Id=postgres;Password=123456" -Project TwitterApi.DataLayer -Provider Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir "Entities/Models" -ContextDir Common -Context TwitterDbContext -Force
