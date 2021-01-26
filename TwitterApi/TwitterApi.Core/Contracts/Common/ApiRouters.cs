@@ -6,7 +6,7 @@
     public static class ApiRouters
     {
         public const string Root =  "api";
-        public const string Base = Root + "/" + "/[controller]";
+        public const string Base = Root + "/[controller]";
 
         /// <summary>
         /// Маршруты для методов авторизации

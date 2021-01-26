@@ -12,20 +12,8 @@ namespace TwitterApi.DataLayer.Entities
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
-        /// ФИО
+        /// Имя
         /// </summary>
-        public string Fio { get; set; }
-        /// <summary>
-        /// Идентификатор филиала в котором работает сотрудник
-        /// </summary>
-        public Guid OfficeId { get; set; }
-        /// <summary>
-        /// Идентификатор должности сотрудника
-        /// </summary>
-        public int JobPositionId { get; set; }
-        /// <summary>
-        /// Мнемоника МФЦ
-        /// </summary>
-        public string OfficeMnemo { get; set; }
+        public string UserName { get; set; }
     }
 }

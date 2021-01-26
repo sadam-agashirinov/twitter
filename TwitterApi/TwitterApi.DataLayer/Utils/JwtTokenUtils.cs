@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using TwitterApi.DataLayer.Common;
 using TwitterApi.DataLayer.Entities;
+using TwitterApi.DataLayer.Entities.Models;
 using TwitterApi.DataLayer.Settings;
 
 namespace TwitterApi.DataLayer.Utils
@@ -45,22 +46,16 @@ namespace TwitterApi.DataLayer.Utils
             }
         }
 
-        //public static ClaimsPrincipal CreateClaimsPrincipal(SEmployees employee)
-        //{
-        //    var office = employee.SEmployeesOfficesJoin.FirstOrDefault(x =>
-        //        x.DateStart <= DateTime.Today && (x.DateStop == null || DateTime.Today >= x.DateStop));
+        public static ClaimsPrincipal CreateClaimsPrincipal(Users user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+            };
 
-        //    var claims = new[]
-        //    {
-        //        new Claim(ClaimTypes.NameIdentifier, employee.Id.ToString()),
-        //        new Claim(ClaimTypes.Name, employee.EmployeeName),
-        //        new Claim(ClaimNamesType.OfficeId, office?.SOfficesId.ToString()),
-        //        new Claim(ClaimNamesType.JobPositionId, office?.SEmployeesJobPositionId.ToString()),
-        //        new Claim(ClaimNamesType.OfficeMnemo, office?.SOffices.OfficeMnemo)
-        //    };
-
-        //    return new ClaimsPrincipal(new ClaimsIdentity(claims));
-        //}
+            return new ClaimsPrincipal(new ClaimsIdentity(claims));
+        }
 
         /// <summary>
         /// Создать объект хранящий информацию об авторизованном пользователе
@@ -74,18 +69,12 @@ namespace TwitterApi.DataLayer.Utils
             var claims = principal.Claims.ToList();
 
             var id = Guid.Parse(claims.First(x => x.Type == JwtRegisteredClaimNames.NameId).Value);
-            var fio = claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value;
-            var officeId = Guid.Parse(claims.First(x => x.Type == ClaimNamesType.OfficeId).Value);
-            var officeMnemo = claims.First(x => x.Type == ClaimNamesType.OfficeMnemo).Value;
-            var jobPositionId = int.Parse(claims.First(x => x.Type == ClaimNamesType.JobPositionId).Value);
+            var userName = claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value;
 
             return new AuthenticatedUserInfo
             {
                 Id = id,
-                Fio = fio,
-                OfficeId = officeId,
-                JobPositionId = jobPositionId,
-                OfficeMnemo = officeMnemo
+                UserName = userName
             };
         }
 
