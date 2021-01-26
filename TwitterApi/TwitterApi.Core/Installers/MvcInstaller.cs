@@ -25,30 +25,30 @@ namespace TwitterApi.Core.Installers
                         Version = "v1"
                     });
 
-                    //var securitySchema = new OpenApiSecurityScheme
-                    //{
-                    //    Description = "JWT Authorization header using the bearer schema",
-                    //    Name = "Authorization",
-                    //    In = ParameterLocation.Header,
-                    //    Type = SecuritySchemeType.ApiKey
-                    //};
+                    var securitySchema = new OpenApiSecurityScheme
+                    {
+                        Description = "JWT Authorization header using the bearer schema",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey
+                    };
 
-                    //x.AddSecurityDefinition("Bearer", securitySchema);
+                    x.AddSecurityDefinition("Bearer", securitySchema);
 
-                    //x.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    //{
-                    //    {
-                    //        new OpenApiSecurityScheme
-                    //        {
-                    //            Reference = new OpenApiReference
-                    //            {
-                    //                Type = ReferenceType.SecurityScheme,
-                    //                Id = "Bearer"
-                    //            }
-                    //        },
-                    //        Array.Empty<string>()
-                    //    }
-                    //});
+                    x.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
 
                     try
                     {

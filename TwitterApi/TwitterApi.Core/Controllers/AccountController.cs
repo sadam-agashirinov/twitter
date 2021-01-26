@@ -47,7 +47,7 @@ namespace TwitterApi.Core.Controllers
                 var newUser = new Users
                 {
                     Id = Guid.NewGuid(),
-                    Login = requestData.Login,
+                    Login = requestData.Login.ToLower(),
                     Password = DataUtils.Encrypt(requestData.Password),
                     UserName = requestData.UserName,
                     Email = requestData.Email
@@ -92,9 +92,52 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.Authenticate)]
-        public Task<ActionResult> Authenticate()
+        public async Task<ActionResult<AuthenticateResponseData>> Authenticate(AuthenticateRequestData requestData)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var validationResult = await requestData.ValidateAsync();
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x =>
+                    x.Login.ToLower() == requestData.Login.ToLower());
+
+                if (user is null) return NotFound(ErrorDescription.UserNotFound);
+
+                if (user.Password != DataUtils.Encrypt(requestData.Password))
+                    return BadRequest(ErrorDescription.UserPasswordIncorrect);
+
+                var claimsPrincipal = JwtTokenUtils.CreateClaimsPrincipal(user);
+                var token = JwtTokenUtils.GenerateAccessToken(claimsPrincipal);
+                var refreshToken = JwtTokenUtils.GenerateRefreshToken();
+
+                if (!ValidationUtils.IsValidName(token) || !ValidationUtils.IsValidName(refreshToken))
+                    return BadRequest("Ошибка генерации токена.");
+
+                var newRefreshToken = new Tokens
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    RefreshToken = refreshToken,
+                    ExpireTime = DateTime.UtcNow.AddDays(JwtSettings.Instance.RefreshTokenLifeTime),
+                    Used = false
+                };
+
+                _dbContext.Entry(newRefreshToken).State = EntityState.Added;
+                await _dbContext.SaveChangesAsync();
+
+                return new AuthenticateResponseData
+                {
+                    Id = user.Id,
+                    AccessToken = token,
+                    RefreshToken = refreshToken
+                };
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
         }
 
         /// <summary>
@@ -102,7 +145,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.RefreshToken)]
-        public Task<ActionResult> RefreshToken()
+        public async Task<ActionResult> RefreshToken()
         {
             throw new NotImplementedException();
         }
