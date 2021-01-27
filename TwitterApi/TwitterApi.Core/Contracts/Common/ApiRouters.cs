@@ -67,6 +67,14 @@
             /// Получить посты пользователя
             /// </summary>
             public const string GetUserPosts = Base + "/{id}/posts";
+            /// <summary>
+            /// Добавить пользователя в бан лист
+            /// </summary>
+            public const string AddUserBanList = Base + "/{id}/ban";
+            /// <summary>
+            /// Удалить пользователя из бан листа
+            /// </summary>
+            public const string DeleteUserBanList = Base + "/{id}/ban";
         }
     }
 }

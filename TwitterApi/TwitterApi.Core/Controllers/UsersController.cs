@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TwitterApi.Core.Contracts.Common;
 using TwitterApi.Core.Contracts.User;
 using TwitterApi.DataLayer.Common;
+using TwitterApi.DataLayer.Entities.Models;
 using TwitterApi.DataLayer.Extensions;
 using TwitterApi.DataLayer.Utils;
 
@@ -57,6 +58,42 @@ namespace TwitterApi.Core.Controllers
                     Id = post.Id,
                     Post = post.Post
                 }).ToList();
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Забанить пользователя
+        /// </summary>
+        /// <param name="id">Идентификатор пользователя</param>
+        /// <returns></returns>
+        [HttpPost(ApiRouters.Users.AddUserBanList)]
+        public async Task<ActionResult> AddUserBanList([FromRoute] Guid id)
+        {
+            try
+            {
+                if (!id.IsValidIdentifier()) return BadRequest(ErrorDescription.InvalidIdentifier);
+
+                var whomUser = await _dbContext.Users.FindAsync(id);
+                if (whomUser is null) return NotFound(ErrorDescription.UserNotFound);
+
+                var whoUser = HttpContext.GetAuthenticatedUserInfo();
+
+                var newUserBan = new BanList
+                {
+                    Id = Guid.NewGuid(),
+                    WhoId = whoUser.Id,
+                    WhomId = whomUser.Id,
+                };
+
+                _dbContext.Entry(newUserBan).State = EntityState.Added;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
