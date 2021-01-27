@@ -30,6 +30,7 @@ namespace TwitterApi.DataLayer.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseNpgsql("Server=127.0.0.1;Port=5432;Database=Twitter;User Id=postgres;Password=123456");
             }
         }
@@ -145,7 +146,8 @@ namespace TwitterApi.DataLayer.Common
 
                 entity.Property(e => e.CreateDate)
                     .HasColumnName("create_date")
-                    .HasColumnType("date");
+                    .HasColumnType("timestamp(0) without time zone")
+                    .HasComment("Дата и время создания поста");
 
                 entity.Property(e => e.Post)
                     .IsRequired()
