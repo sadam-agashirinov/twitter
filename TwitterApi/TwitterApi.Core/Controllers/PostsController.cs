@@ -149,5 +149,40 @@ namespace TwitterApi.Core.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
             }
         }
+
+        /// <summary>
+        /// Добавление лайка к посту
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost(ApiRouters.Post.AddLikePost)]
+        public async Task<ActionResult> AddPostLike(Guid id)
+        {
+            try
+            {
+                if (!id.IsValidIdentifier()) return BadRequest("Невалидный идентификатор.");
+
+                var post = await _dbContext.Posts.FindAsync(id);
+                if (post is null) return NotFound(ErrorDescription.PostNotFound);
+
+                var user = HttpContext.GetAuthenticatedUserInfo();
+
+                var newPostLike = new PostLikes
+                {
+                    Id = Guid.NewGuid(),
+                    PostId = post.Id,
+                    UserId = user.Id
+                };
+
+                _dbContext.Entry(newPostLike).State = EntityState.Added;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
     }
 }
