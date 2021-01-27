@@ -15,5 +15,7 @@
         public const string RefreshTokenExpired = "Истек срок токена обновления.";
 
         public const string PostNotFound = "Пост не найден.";
+
+        public const string CommentNotFound = "Комментарий не найден.";
     }
 }

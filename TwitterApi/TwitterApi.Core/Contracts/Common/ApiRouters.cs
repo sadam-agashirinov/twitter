@@ -43,7 +43,7 @@
             /// <summary>
             /// Ответить на комметарий в посте
             /// </summary>
-            public const string AddAnswerComment = Base + "/comments/{id}/answer";
+            public const string AddAnswerComment = Base + "/{id}/comments/answer";
             /// <summary>
             /// Добавить лайк к посту
             /// </summary>
