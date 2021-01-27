@@ -101,5 +101,37 @@ namespace TwitterApi.Core.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
             }
         }
+
+        /// <summary>
+        /// Разбанить пользователя
+        /// </summary>
+        /// <param name="id">Идентификатор пользователя</param>
+        /// <returns></returns>
+        [HttpDelete(ApiRouters.Users.DeleteUserBanList)]
+        public async Task<ActionResult> DeleteUserBanList([FromRoute] Guid id)
+        {
+            try
+            {
+                if (!id.IsValidIdentifier()) return BadRequest(ErrorDescription.InvalidIdentifier);
+
+                var whomUser = await _dbContext.Users.FindAsync(id);
+                if (whomUser is null) return NotFound(ErrorDescription.UserNotFound);
+
+                var whoUser = HttpContext.GetAuthenticatedUserInfo();
+
+                var userBan = await _dbContext.BanList.FirstOrDefaultAsync(x => x.WhoId == whoUser.Id && x.WhomId == whomUser.Id);
+                if (userBan is null) return NotFound("Пользователь не найден в бан листе.");
+
+                _dbContext.Entry(userBan).State = EntityState.Deleted;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
     }
 }
