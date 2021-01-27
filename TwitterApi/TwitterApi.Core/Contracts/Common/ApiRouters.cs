@@ -37,6 +37,14 @@
             /// </summary>
             public const string AddPost = Base;
             /// <summary>
+            /// Получить ленту постов
+            /// </summary>
+            public const string GetPosts = Base;
+            /// <summary>
+            /// Получить посты пользователя
+            /// </summary>
+            public const string GetUserPosts = Base;
+            /// <summary>
             /// Добавить комментарий к посту
             /// </summary>
             public const string AddPostComment = Base + "/{id}/comment";

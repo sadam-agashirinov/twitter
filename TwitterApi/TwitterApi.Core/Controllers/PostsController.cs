@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TwitterApi.Core.Contracts.Common;
 using TwitterApi.Core.Contracts.Post;
@@ -56,6 +58,40 @@ namespace TwitterApi.Core.Controllers
                 await _dbContext.SaveChangesAsync();
 
                 return Ok(newPost.Id);
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Получить ленту постов
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(ApiRouters.Post.GetPosts)]
+        public async Task<ActionResult<IEnumerable<GetPostsResponseData>>> GetPosts()
+        {
+            try
+            {
+                var posts = await _dbContext.Posts
+                    .Include(x => x.PostLikes)
+                    .ThenInclude(x => x.User)
+                    .OrderByDescending(x => x.CreateDate)
+                    .ToListAsync();
+
+                var user = HttpContext.GetAuthenticatedUserInfo();
+
+                return posts.Select(post => new GetPostsResponseData
+                {
+                    Id = post.Id,
+                    Post = post.Post,
+                    LikeCount = post.UserId != user.Id ? post.PostLikes.Count : 0,
+                    LikeUsers = post.UserId == user.Id
+                        ? post.PostLikes.Select(x => x.User.UserName).ToList()
+                        : new List<string>()
+                }).ToList();
             }
             catch (Exception e)
             {
