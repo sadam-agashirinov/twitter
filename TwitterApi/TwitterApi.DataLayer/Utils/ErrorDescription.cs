@@ -5,6 +5,7 @@
         public const string InvalidInputParameters = "Не правильное значение входных параметров.";
         public const string DbQueryExecutionError = "Ошибка выполнения запроса к БД.";
         public const string InternalServerError = "Внутренняя ошибка сервиса.";
+        public const string InvalidIdentifier = "Невалидный идентификатор.";
 
         public const string UserNotFound = "Пользователь не найден.";
         public const string UserPasswordIncorrect = "Неверный пароль.";

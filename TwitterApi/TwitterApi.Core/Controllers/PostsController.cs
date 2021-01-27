@@ -67,6 +67,7 @@ namespace TwitterApi.Core.Controllers
         /// <summary>
         /// Добавить комментарий к посту
         /// </summary>
+        /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
         [HttpPost(ApiRouters.Post.AddPostComment)]
         public async Task<ActionResult> AddPostComment([FromRoute] Guid id, [FromForm] AddPostCommentRequestData requestData)
@@ -76,7 +77,7 @@ namespace TwitterApi.Core.Controllers
                 var validationResult = await requestData.ValidateAsync();
                 if (!id.IsValidIdentifier() || !validationResult.IsValid)
                     return BadRequest(validationResult.IsValid
-                        ? "Невалидный идентификатор."
+                        ? ErrorDescription.InvalidIdentifier
                         : validationResult.Errors.ToString());
 
 
@@ -109,9 +110,10 @@ namespace TwitterApi.Core.Controllers
         /// <summary>
         /// Добавления ответа на комментарий
         /// </summary>
+        /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
         [HttpPost(ApiRouters.Post.AddAnswerComment)]
-        public async Task<ActionResult> AddCommentAnswer([FromRoute] Guid id, AddCommentAnswerRequestData requestData)
+        public async Task<ActionResult> AddCommentAnswer([FromRoute] Guid id, [FromForm] AddCommentAnswerRequestData requestData)
         {
             try
             {
@@ -153,13 +155,14 @@ namespace TwitterApi.Core.Controllers
         /// <summary>
         /// Добавление лайка к посту
         /// </summary>
+        /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
         [HttpPost(ApiRouters.Post.AddLikePost)]
-        public async Task<ActionResult> AddPostLike(Guid id)
+        public async Task<ActionResult> AddLikePost(Guid id)
         {
             try
             {
-                if (!id.IsValidIdentifier()) return BadRequest("Невалидный идентификатор.");
+                if (!id.IsValidIdentifier()) return BadRequest(ErrorDescription.InvalidIdentifier);
 
                 var post = await _dbContext.Posts.FindAsync(id);
                 if (post is null) return NotFound(ErrorDescription.PostNotFound);
@@ -174,6 +177,42 @@ namespace TwitterApi.Core.Controllers
                 };
 
                 _dbContext.Entry(newPostLike).State = EntityState.Added;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Добавить лайк к комментарию
+        /// </summary>
+        /// <param name="id">Идентификатор комментария</param>
+        /// <returns></returns>
+        [HttpPost(ApiRouters.Post.AddLikeComment)]
+        public async Task<ActionResult> AddLikeComment(Guid id)
+        {
+            try
+            {
+                if (!id.IsValidIdentifier()) return BadRequest(ErrorDescription.InvalidIdentifier);
+
+                var comment = await _dbContext.PostComments.FindAsync(id);
+                if (comment is null) return NotFound(ErrorDescription.CommentNotFound);
+
+                var user = HttpContext.GetAuthenticatedUserInfo();
+
+                var newCommentLike = new CommentLikes
+                {
+                    Id = Guid.NewGuid(),
+                    PostCommentId = comment.Id,
+                    UserId = user.Id
+                };
+
+                _dbContext.Entry(newCommentLike).State = EntityState.Added;
                 await _dbContext.SaveChangesAsync();
 
                 return Ok();

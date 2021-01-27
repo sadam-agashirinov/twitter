@@ -48,6 +48,10 @@
             /// Добавить лайк к посту
             /// </summary>
             public const string AddLikePost = Base + "/{id}/like";
+            /// <summary>
+            /// Добавить лайк к комментарию
+            /// </summary>
+            public const string AddLikeComment = Base + "/comments/{id}/like";
         }
     }
 }
