@@ -36,7 +36,7 @@ namespace TwitterApi.Core.Controllers
         /// Добавление нового поста
         /// </summary>
         /// <returns></returns>
-        [HttpPost(ApiRouters.Post.AddPost)]
+        [HttpPost(ApiRouters.Posts.AddPost)]
         public async Task<ActionResult> AddPost([FromForm] AddPostRequestData requestData)
         {
             try
@@ -70,7 +70,7 @@ namespace TwitterApi.Core.Controllers
         /// Получить ленту постов
         /// </summary>
         /// <returns></returns>
-        [HttpGet(ApiRouters.Post.GetPosts)]
+        [HttpGet(ApiRouters.Posts.GetPosts)]
         public async Task<ActionResult<IEnumerable<GetPostsResponseData>>> GetPosts()
         {
             try
@@ -105,7 +105,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
-        [HttpPost(ApiRouters.Post.AddPostComment)]
+        [HttpPost(ApiRouters.Posts.AddPostComment)]
         public async Task<ActionResult> AddPostComment([FromRoute] Guid id, [FromForm] AddPostCommentRequestData requestData)
         {
             try
@@ -148,7 +148,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
-        [HttpPost(ApiRouters.Post.AddAnswerComment)]
+        [HttpPost(ApiRouters.Posts.AddAnswerComment)]
         public async Task<ActionResult> AddCommentAnswer([FromRoute] Guid id, [FromForm] AddCommentAnswerRequestData requestData)
         {
             try
@@ -193,7 +193,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
-        [HttpPost(ApiRouters.Post.AddLikePost)]
+        [HttpPost(ApiRouters.Posts.AddLikePost)]
         public async Task<ActionResult> AddLikePost(Guid id)
         {
             try
@@ -229,7 +229,7 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор комментария</param>
         /// <returns></returns>
-        [HttpPost(ApiRouters.Post.AddLikeComment)]
+        [HttpPost(ApiRouters.Posts.AddLikeComment)]
         public async Task<ActionResult> AddLikeComment(Guid id)
         {
             try

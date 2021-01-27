@@ -30,7 +30,7 @@
         /// <summary>
         /// Маршруты для работы постом
         /// </summary>
-        public static class Post
+        public static class Posts
         {
             /// <summary>
             /// Добавление нового поста
@@ -40,10 +40,6 @@
             /// Получить ленту постов
             /// </summary>
             public const string GetPosts = Base;
-            /// <summary>
-            /// Получить посты пользователя
-            /// </summary>
-            public const string GetUserPosts = Base;
             /// <summary>
             /// Добавить комментарий к посту
             /// </summary>
@@ -60,6 +56,17 @@
             /// Добавить лайк к комментарию
             /// </summary>
             public const string AddLikeComment = Base + "/comments/{id}/like";
+        }
+
+        /// <summary>
+        /// Маршруты для работы с пользователями
+        /// </summary>
+        public static class Users
+        {
+            /// <summary>
+            /// Получить посты пользователя
+            /// </summary>
+            public const string GetUserPosts = Base + "/{id}/posts";
         }
     }
 }
