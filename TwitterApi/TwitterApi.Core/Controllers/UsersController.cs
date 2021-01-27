@@ -48,6 +48,13 @@ namespace TwitterApi.Core.Controllers
                 var user = await _dbContext.Users.FindAsync(id);
                 if (user is null) return NotFound(ErrorDescription.UserNotFound);
 
+                var authUser = HttpContext.GetAuthenticatedUserInfo();
+
+                var banEntity =
+                    await _dbContext.BanList.FirstOrDefaultAsync(x => x.WhoId == user.Id && x.WhomId == authUser.Id);
+
+                if (banEntity != null) return BadRequest("Вы забанены пользователем.");
+
                 var posts = await _dbContext.Posts
                     .Where(x => x.UserId == user.Id)
                     .OrderByDescending(x=>x.CreateDate)
