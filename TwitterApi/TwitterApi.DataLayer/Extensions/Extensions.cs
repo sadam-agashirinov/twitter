@@ -21,5 +21,10 @@ namespace TwitterApi.DataLayer.Extensions
         {
             return httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
         }
+
+        public static bool IsValidIdentifier(this Guid id)
+        {
+            return id != Guid.Empty;
+        }
     }
 }

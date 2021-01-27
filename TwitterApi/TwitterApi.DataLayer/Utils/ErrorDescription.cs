@@ -13,5 +13,7 @@
         public const string InvalidAccessToken = "Не валидный токен.";
         public const string RefreshTokenNotFound = "Токен обновления не найден.";
         public const string RefreshTokenExpired = "Истек срок токена обновления.";
+
+        public const string PostNotFound = "Пост не найден.";
     }
 }

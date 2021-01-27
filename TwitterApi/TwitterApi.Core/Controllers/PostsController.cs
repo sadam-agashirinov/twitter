@@ -63,5 +63,47 @@ namespace TwitterApi.Core.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
             }
         }
+
+        /// <summary>
+        /// Добавить комментарий к посту
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost(ApiRouters.Post.AddPostComment)]
+        public async Task<ActionResult> AddPostComment([FromRoute] Guid id, [FromForm] AddPostCommentRequestData requestData)
+        {
+            try
+            {
+                var validationResult = await requestData.ValidateAsync();
+                if (!id.IsValidIdentifier() || !validationResult.IsValid)
+                    return BadRequest(validationResult.IsValid
+                        ? "Невалидный идентификатор."
+                        : validationResult.Errors.ToString());
+
+
+                var post = await _dbContext.Posts.FindAsync(id);
+                if (post is null) return NotFound(ErrorDescription.PostNotFound); 
+                
+                var user = HttpContext.GetAuthenticatedUserInfo();
+
+                var newPostComment = new PostComments
+                {
+                    Id = Guid.NewGuid(),
+                    PostId = id,
+                    Comment = requestData.Comment,
+                    UserId = user.Id,
+                    ParentId = Guid.Empty
+                };
+
+                _dbContext.Entry(newPostComment).State = EntityState.Added;
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(newPostComment.Id);
+            }
+            catch (Exception e)
+            {
+                WebApiLogger.LogException(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
+            }
+        }
     }
 }

@@ -93,8 +93,7 @@ namespace TwitterApi.DataLayer.Common
 
                 entity.Property(e => e.Comment)
                     .IsRequired()
-                    .HasColumnName("comment")
-                    .HasMaxLength(255);
+                    .HasColumnName("comment");
 
                 entity.Property(e => e.ParentId).HasColumnName("parent_id");
 
