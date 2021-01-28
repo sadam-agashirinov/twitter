@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TwitterApi.DataLayer.Entities.Models;
+using TwitterApi.DataLayer.Utils;
 
 // Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
 // If you have enabled NRTs for your project, then un-comment the following line:
@@ -30,8 +32,12 @@ namespace TwitterApi.DataLayer.Common
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseNpgsql("Server=127.0.0.1;Port=5432;Database=Twitter;User Id=postgres;Password=123456");
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(DataUtils.SoftwareDir)
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+                optionsBuilder.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             }
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwitterApi.Core.Installers;
+using TwitterApi.DataLayer.Common;
 using TwitterApi.DataLayer.Settings;
 
 namespace TwitterApi.Core
@@ -13,6 +14,7 @@ namespace TwitterApi.Core
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            WebApiLogger.Configure("WebApiLogger", "WebApiLogFile.log", false);
         }
 
         public IConfiguration Configuration { get; }
