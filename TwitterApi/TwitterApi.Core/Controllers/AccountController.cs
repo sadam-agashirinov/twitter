@@ -22,14 +22,14 @@ namespace TwitterApi.Core.Controllers
     [Produces("application/json")]
     public class AccountController : ControllerBase
     {
-        private TwitterDbContext _dbContext;
+        private readonly TwitterDbContext _dbContext;
 
         /// <summary>
         /// Контроллер авторизации и регистрации аккаунта
         /// </summary>
-        public AccountController(TwitterDbContext dbContext)
+        public AccountController(DbContextFactory dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContextFactory.Create();
         }
 
         /// <summary>

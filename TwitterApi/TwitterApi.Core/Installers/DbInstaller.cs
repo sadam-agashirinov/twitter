@@ -9,8 +9,7 @@ namespace TwitterApi.Core.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<TwitterDbContext>(x =>
-                x.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            services.AddSingleton<DbContextFactory>();
         }
     }
 }
