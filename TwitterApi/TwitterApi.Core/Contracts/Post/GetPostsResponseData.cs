@@ -25,5 +25,24 @@ namespace TwitterApi.Core.Contracts.Post
         /// Пользователи поставившие лайк на пост
         /// </summary>
         public List<string> LikeUsers { get; set; }
+        /// <summary>
+        /// Комментарии к посту
+        /// </summary>
+        public List<PostComment> Comments { get; set; }
+
+        /// <summary>
+        /// Комментарий к посту
+        /// </summary>
+        public class PostComment
+        {
+            /// <summary>
+            /// Имя пользователя написавшего комментарий
+            /// </summary>
+            public string UserName { get; set; }
+            /// <summary>
+            /// Текст комментария
+            /// </summary>
+            public string Comment { get; set; }
+        }
     }
 }

@@ -86,6 +86,8 @@ namespace TwitterApi.Core.Controllers
                 var user = HttpContext.GetAuthenticatedUserInfo();
 
                 var posts = await _dbContext.Posts
+                    .Include(x => x.PostComments)
+                        .ThenInclude(x=>x.User)
                     .Include(x => x.PostLikes)
                         .ThenInclude(x => x.User)
                     .Include(x => x.User.BanListWho)
@@ -101,8 +103,15 @@ namespace TwitterApi.Core.Controllers
                     Post = post.Post,
                     LikeCount = post.UserId != user.Id ? post.PostLikes.Count : 0,
                     LikeUsers = post.UserId == user.Id
-                        ? post.PostLikes.Select(x => x.User.UserName).ToList()
-                        : new List<string>()
+                        ? post.PostLikes.Select(like => like.User.UserName).ToList()
+                        : new List<string>(),
+                    Comments = post.PostComments
+                        .Where(comment => comment.ParentId == Guid.Empty)
+                        .Select(comment => new GetPostsResponseData.PostComment
+                        {
+                            UserName = comment.User.UserName,
+                            Comment = comment.Comment
+                        }).ToList()
                 }).ToList();
             }
             catch (Exception e)
