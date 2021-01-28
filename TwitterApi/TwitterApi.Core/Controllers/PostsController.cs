@@ -33,7 +33,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Добавление нового поста
+        /// Запрос на добавление нового поста
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Posts.AddPost)]
@@ -67,7 +67,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Получить ленту постов
+        /// Запрос получения ленты постов
         /// </summary>
         /// <returns></returns>
         [HttpGet(ApiRouters.Posts.GetPosts)]
@@ -105,9 +105,10 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Добавить комментарий к посту
+        /// Запрос добавления комментария к посту
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
+        /// <param name="requestData">Данные запроса</param>
         /// <returns></returns>
         [HttpPost(ApiRouters.Posts.AddPostComment)]
         public async Task<ActionResult> AddPostComment([FromRoute] Guid id, [FromForm] AddPostCommentRequestData requestData)
@@ -148,9 +149,10 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Добавления ответа на комментарий
+        /// Запрос добавления комментария к комментарию в посте
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
+        /// <param name="requestData">Данные запроса</param>
         /// <returns></returns>
         [HttpPost(ApiRouters.Posts.AddAnswerComment)]
         public async Task<ActionResult> AddCommentAnswer([FromRoute] Guid id, [FromForm] AddCommentAnswerRequestData requestData)
@@ -193,7 +195,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Добавление лайка к посту
+        /// Запрос добавления лайка к посту
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
@@ -229,7 +231,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Добавить лайк к комментарию
+        /// Запрос добавления лайка к комментарию
         /// </summary>
         /// <param name="id">Идентификатор комментария</param>
         /// <returns></returns>

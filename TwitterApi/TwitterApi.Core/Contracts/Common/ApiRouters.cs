@@ -6,6 +6,9 @@
     public static class ApiRouters
     {
         public const string Root = "api";
+        /// <summary>
+        /// Базовый путь маршрута
+        /// </summary>
         public const string Base = Root + "/[controller]";
 
         /// <summary>
@@ -14,15 +17,15 @@
         public static class Account
         {
             /// <summary>
-            /// Регистрация пользователя
+            /// Запрос регистрация пользователя
             /// </summary>
             public const string Registration = Base + "/registration";
             /// <summary>
-            /// Авторизация пользователя
+            /// Запрос авторизация пользователя
             /// </summary>
             public const string Authenticate = Base + "/authenticate";
             /// <summary>
-            /// Обновление токена
+            /// Запрос обновление токена
             /// </summary>
             public const string RefreshToken = Base + "/refreshtoken";
         }
@@ -33,27 +36,27 @@
         public static class Posts
         {
             /// <summary>
-            /// Добавление нового поста
+            /// Запрос на добавление нового поста
             /// </summary>
             public const string AddPost = Base;
             /// <summary>
-            /// Получить ленту постов
+            /// Запрос получения ленты постов
             /// </summary>
             public const string GetPosts = Base;
             /// <summary>
-            /// Добавить комментарий к посту
+            /// Запрос добавления комментария к посту
             /// </summary>
             public const string AddPostComment = Base + "/{id}/comment";
             /// <summary>
-            /// Ответить на комметарий в посте
+            /// Запрос добавления комментария к комметарию в посте
             /// </summary>
             public const string AddAnswerComment = Base + "/{id}/comments/answer";
             /// <summary>
-            /// Добавить лайк к посту
+            /// Запрос добавления лайка к посту
             /// </summary>
             public const string AddLikePost = Base + "/{id}/like";
             /// <summary>
-            /// Добавить лайк к комментарию
+            /// Запрос добавления лайка к комментарию
             /// </summary>
             public const string AddLikeComment = Base + "/comments/{id}/like";
         }
@@ -64,15 +67,15 @@
         public static class Users
         {
             /// <summary>
-            /// Получить посты пользователя
+            /// Запрос на получение постов пользователя
             /// </summary>
             public const string GetUserPosts = Base + "/{id}/posts";
             /// <summary>
-            /// Добавить пользователя в бан лист
+            /// Запрос добавления пользователя в бан лист
             /// </summary>
             public const string AddUserBanList = Base + "/{id}/ban";
             /// <summary>
-            /// Удалить пользователя из бан листа
+            /// Запрос на удаления пользователя из бан листа
             /// </summary>
             public const string DeleteUserBanList = Base + "/{id}/ban";
         }

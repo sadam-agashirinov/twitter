@@ -34,7 +34,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Получить посты пользователя
+        /// Запрос на получение постов пользователя
         /// </summary>
         /// <param name="id">Идентификатор пользователя</param>
         /// <returns></returns>
@@ -74,7 +74,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Забанить пользователя
+        /// Запрос добавления пользователя в бан лист
         /// </summary>
         /// <param name="id">Идентификатор пользователя</param>
         /// <returns></returns>
@@ -110,7 +110,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Разбанить пользователя
+        /// Запрос на удаления пользователя из бан листа
         /// </summary>
         /// <param name="id">Идентификатор пользователя</param>
         /// <returns></returns>

@@ -33,7 +33,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Регистрация нового пользователя
+        /// Запрос регистрация нового пользователя
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.Registration)]
@@ -91,7 +91,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Авторизация пользователя
+        /// Запрос авторизация пользователя
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.Authenticate)]
@@ -144,7 +144,7 @@ namespace TwitterApi.Core.Controllers
         }
 
         /// <summary>
-        /// Обновления токена
+        /// Запрос обновления токена
         /// </summary>
         /// <returns></returns>
         [HttpPost(ApiRouters.Account.RefreshToken)]
