@@ -90,8 +90,8 @@ namespace TwitterApi.Core.Controllers
                         .ThenInclude(x => x.User)
                     .Include(x => x.User.BanListWho)
                     .Include(x => x.User.BanListWhom)
-                    .Where(x => x.User.BanListWho.Any(z => z.WhoId == user.Id) ||
-                                x.User.BanListWhom.Any(z => z.WhomId == user.Id))
+                    .Where(x => x.User.BanListWho.All(z => z.WhoId != user.Id) ||
+                                x.User.BanListWhom.All(z => z.WhomId != user.Id))
                     .OrderByDescending(x => x.CreateDate)
                     .ToListAsync();
 
