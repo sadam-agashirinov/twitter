@@ -110,7 +110,14 @@ namespace TwitterApi.Core.Controllers
                         .Select(comment => new GetPostsResponseData.PostComment
                         {
                             UserName = comment.User.UserName,
-                            Comment = comment.Comment
+                            Comment = comment.Comment,
+                            Answers = post.PostComments
+                                .Where(answerComment=>answerComment.ParentId == comment.Id)
+                                .Select(answerComment => new GetPostsResponseData.PostComment
+                                {
+                                    UserName = answerComment.User.UserName,
+                                    Comment = answerComment.Comment
+                                }).ToList()
                         }).ToList()
                 }).ToList();
             }

@@ -43,6 +43,10 @@ namespace TwitterApi.Core.Contracts.Post
             /// Текст комментария
             /// </summary>
             public string Comment { get; set; }
+            /// <summary>
+            /// Ответы на комментарии
+            /// </summary>
+            public List<PostComment> Answers { get; set; }
         }
     }
 }
