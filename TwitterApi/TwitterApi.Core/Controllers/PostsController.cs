@@ -36,7 +36,11 @@ namespace TwitterApi.Core.Controllers
         /// Запрос на добавление нового поста
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         [HttpPost(ApiRouters.Posts.AddPost)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddPost([FromForm] AddPostRequestData requestData)
         {
             try
@@ -70,7 +74,11 @@ namespace TwitterApi.Core.Controllers
         /// Запрос получения ленты постов
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         [HttpGet(ApiRouters.Posts.GetPosts)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<GetPostsResponseData>>> GetPosts()
         {
             try
@@ -109,8 +117,16 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <param name="requestData">Данные запроса</param>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">Не валидные входные параметры</response>
+        /// <response code="404">Пост не найден</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         /// <returns></returns>
         [HttpPost(ApiRouters.Posts.AddPostComment)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddPostComment([FromRoute] Guid id, [FromForm] AddPostCommentRequestData requestData)
         {
             try
@@ -154,7 +170,15 @@ namespace TwitterApi.Core.Controllers
         /// <param name="id">Идентификатор поста</param>
         /// <param name="requestData">Данные запроса</param>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">Не валидные входные параметры</response>
+        /// <response code="404">Пост или комментарий не найдены</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         [HttpPost(ApiRouters.Posts.AddAnswerComment)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddCommentAnswer([FromRoute] Guid id, [FromForm] AddCommentAnswerRequestData requestData)
         {
             try
@@ -199,7 +223,15 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор поста</param>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">Не валидные входные параметры</response>
+        /// <response code="404">Пост не найдены</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         [HttpPost(ApiRouters.Posts.AddLikePost)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddLikePost(Guid id)
         {
             try
@@ -235,7 +267,15 @@ namespace TwitterApi.Core.Controllers
         /// </summary>
         /// <param name="id">Идентификатор комментария</param>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">Не валидные входные параметры</response>
+        /// <response code="404">Комментарий не найдены</response>
+        /// <response code="500">Внутренняя ошибика сервиса</response>
         [HttpPost(ApiRouters.Posts.AddLikeComment)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddLikeComment(Guid id)
         {
             try

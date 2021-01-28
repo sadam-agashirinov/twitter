@@ -4,14 +4,14 @@ namespace TwitterApi.DataLayer.Utils
 {
     public static class ValidationUtils
     {
-        public static bool IsValidName(string name)
+        public static bool IsValidString(string str)
         {
-            return !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(name.Trim());
+            return !string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str.Trim());
         }
 
-        public static bool IsValidNames(params string[] names)
+        public static bool IsValidStrings(params string[] strings)
         {
-            return names.All(IsValidName);
+            return strings.All(IsValidString);
         }
     }
 }

@@ -36,7 +36,16 @@ namespace TwitterApi.Core.Controllers
         /// Запрос регистрация нового пользователя
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">
+        /// Не валидные входные параметры.
+        /// Пользователь с таким логином уже существует.
+        /// Ошибка генерации токена.</response>
+        /// <response code="500">Ошибка выполнения запроса</response>
         [HttpPost(ApiRouters.Account.Registration)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RegistrationResponseData>> Registration([FromForm] RegistrationRequestData requestData)
         {
             try
@@ -60,7 +69,7 @@ namespace TwitterApi.Core.Controllers
                 var token = JwtTokenUtils.GenerateAccessToken(claimsPrincipal);
                 var refreshToken = JwtTokenUtils.GenerateRefreshToken();
 
-                if (!ValidationUtils.IsValidName(token) || !ValidationUtils.IsValidName(refreshToken))
+                if (!ValidationUtils.IsValidString(token) || !ValidationUtils.IsValidString(refreshToken))
                     return BadRequest("Ошибка генерации токена.");
 
                 var newRefreshToken = new Tokens
@@ -94,7 +103,18 @@ namespace TwitterApi.Core.Controllers
         /// Запрос авторизация пользователя
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">
+        /// Не валидные входные параметры.
+        /// Неверный пароль.
+        /// Ошибка генерации токена.</response>
+        /// <response code="404">Пользователь не найден</response>
+        /// <response code="500">Ошибка выполнения запроса</response>
         [HttpPost(ApiRouters.Account.Authenticate)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AuthenticateResponseData>> Authenticate([FromForm] AuthenticateRequestData requestData)
         {
             try
@@ -114,7 +134,7 @@ namespace TwitterApi.Core.Controllers
                 var token = JwtTokenUtils.GenerateAccessToken(claimsPrincipal);
                 var refreshToken = JwtTokenUtils.GenerateRefreshToken();
 
-                if (!ValidationUtils.IsValidName(token) || !ValidationUtils.IsValidName(refreshToken))
+                if (!ValidationUtils.IsValidString(token) || !ValidationUtils.IsValidString(refreshToken))
                     return BadRequest("Ошибка генерации токена.");
 
                 var newRefreshToken = new Tokens
@@ -147,7 +167,18 @@ namespace TwitterApi.Core.Controllers
         /// Запрос обновления токена
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Запрос выполнен успешно</response>
+        /// <response code="400">
+        /// Не валидные входные параметры.
+        /// Не валидный токен
+        /// Ошибка генерации токена.</response>
+        /// <response code="404">Токен обновления не найден</response>
+        /// <response code="500">Ошибка выполнения запроса</response>
         [HttpPost(ApiRouters.Account.RefreshToken)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RefreshTokenResponseData>> RefreshToken([FromForm] RefreshTokenRequestData requestData)
         {
             try
@@ -163,12 +194,15 @@ namespace TwitterApi.Core.Controllers
                     await _dbContext.Tokens.SingleOrDefaultAsync(x =>
                         x.UserId == authUser.Id && x.RefreshToken == requestData.RefreshToken && !x.Used);
 
-                if (refreshToken is null) return BadRequest(ErrorDescription.RefreshTokenNotFound);
+                if (refreshToken is null) return NotFound(ErrorDescription.RefreshTokenNotFound);
                 if (refreshToken.IsExpired()) return BadRequest(ErrorDescription.RefreshTokenExpired);
 
                 var principal = JwtTokenUtils.GetClaimsPrincipal(requestData.AccessToken);
                 var newAccessToken = JwtTokenUtils.GenerateAccessToken(principal);
                 var newRefreshToken = JwtTokenUtils.GenerateRefreshToken();
+
+                if (!ValidationUtils.IsValidString(newAccessToken) || !ValidationUtils.IsValidString(newRefreshToken))
+                    return BadRequest("Ошибка генерации токена.");
 
                 var newRefreshTokenEntity = new Tokens
                 {

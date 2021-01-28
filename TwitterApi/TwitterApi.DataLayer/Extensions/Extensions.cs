@@ -12,7 +12,7 @@ namespace TwitterApi.DataLayer.Extensions
         {
             var token = httpContext.GetAccessToken();
 
-            if (!ValidationUtils.IsValidName(token)) throw new Exception("Ошибка получения токена доступа.");
+            if (!ValidationUtils.IsValidString(token)) throw new Exception("Ошибка получения токена доступа.");
 
             return JwtTokenUtils.CreateAuthenticatedUserInfo(token);
         }
