@@ -88,6 +88,9 @@ namespace TwitterApi.Core.Controllers
                 var posts = await _dbContext.Posts
                     .Include(x => x.PostComments)
                         .ThenInclude(x => x.User)
+                    .Include(x => x.PostComments)
+                        .ThenInclude(x => x.CommentLikes)
+                            .ThenInclude(x=>x.User)
                     .Include(x => x.PostLikes)
                         .ThenInclude(x => x.User)
                     .Include(x => x.User.BanListWho)
@@ -96,7 +99,7 @@ namespace TwitterApi.Core.Controllers
                                         post.User.BanListWhom.All(x => x.WhoId != user.Id))
                     .OrderByDescending(x => x.CreateDate)
                     .ToListAsync();
-                
+
                 var response = new List<GetPostsResponseData>();
 
                 posts.ForEach(post =>
@@ -108,6 +111,8 @@ namespace TwitterApi.Core.Controllers
                             Id = comment.Id,
                             UserName = comment.User.UserName,
                             Comment = comment.Comment,
+                            Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
+                            LikesCount = comment.CommentLikes.Count,
                             Answers = new List<GetPostsResponseData.PostComment>()
                         }).ToList();
 
@@ -119,8 +124,6 @@ namespace TwitterApi.Core.Controllers
                     {
                         SearchAnswers(postComment, post.PostComments.ToList());
                     });
-
-                    
 
                     response.Add(new GetPostsResponseData
                     {
@@ -146,12 +149,14 @@ namespace TwitterApi.Core.Controllers
         private void SearchAnswers(GetPostsResponseData.PostComment parentComment, List<PostComments> comments)
         {
             var answers = comments
-                .Where(x => x.ParentId == parentComment.Id)
-                .Select(x=> new GetPostsResponseData.PostComment
+                .Where(comment => comment.ParentId == parentComment.Id)
+                .Select(comment => new GetPostsResponseData.PostComment
                 {
-                    Id = x.Id,
-                    UserName = x.User.UserName,
-                    Comment = x.Comment,
+                    Id = comment.Id,
+                    UserName = comment.User.UserName,
+                    Comment = comment.Comment,
+                    Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
+                    LikesCount = comment.CommentLikes.Count,
                     Answers = new List<GetPostsResponseData.PostComment>()
                 })
                 .ToList();

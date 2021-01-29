@@ -48,6 +48,14 @@ namespace TwitterApi.Core.Contracts.Post
             /// </summary>
             public string Comment { get; set; }
             /// <summary>
+            /// Пользователи поставившие лайк на коммент
+            /// </summary>
+            public List<string> Likers { get; set; }
+            /// <summary>
+            /// Количество лайков комментария
+            /// </summary>
+            public int LikesCount { get; set; }
+            /// <summary>
             /// Ответы на комментарии
             /// </summary>
             public List<PostComment> Answers { get; set; }
