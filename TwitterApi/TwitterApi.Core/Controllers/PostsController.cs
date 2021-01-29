@@ -87,45 +87,79 @@ namespace TwitterApi.Core.Controllers
 
                 var posts = await _dbContext.Posts
                     .Include(x => x.PostComments)
-                        .ThenInclude(x=>x.User)
+                        .ThenInclude(x => x.User)
                     .Include(x => x.PostLikes)
                         .ThenInclude(x => x.User)
                     .Include(x => x.User.BanListWho)
                     .Include(x => x.User.BanListWhom)
                     .Where(post => post.User.BanListWho.All(x => x.WhomId != user.Id) &&
-                                        post.User.BanListWhom.All(x=> x.WhoId != user.Id))
+                                        post.User.BanListWhom.All(x => x.WhoId != user.Id))
                     .OrderByDescending(x => x.CreateDate)
                     .ToListAsync();
+                
+                var response = new List<GetPostsResponseData>();
 
-                return posts.Select(post => new GetPostsResponseData
+                posts.ForEach(post =>
                 {
-                    Id = post.Id,
-                    Post = post.Post,
-                    LikeCount = post.UserId != user.Id ? post.PostLikes.Count : 0,
-                    LikeUsers = post.UserId == user.Id
-                        ? post.PostLikes.Select(like => like.User.UserName).ToList()
-                        : new List<string>(),
-                    Comments = post.PostComments
+                    var postComments = post.PostComments
                         .Where(comment => comment.ParentId == Guid.Empty)
                         .Select(comment => new GetPostsResponseData.PostComment
                         {
+                            Id = comment.Id,
                             UserName = comment.User.UserName,
                             Comment = comment.Comment,
-                            Answers = post.PostComments
-                                .Where(answerComment=>answerComment.ParentId == comment.Id)
-                                .Select(answerComment => new GetPostsResponseData.PostComment
-                                {
-                                    UserName = answerComment.User.UserName,
-                                    Comment = answerComment.Comment
-                                }).ToList()
-                        }).ToList()
-                }).ToList();
+                            Answers = new List<GetPostsResponseData.PostComment>()
+                        }).ToList();
+
+                    post.PostComments
+                        .ToList()
+                        .RemoveAll(postComment => postComments.Exists(x => x.Id == postComment.Id));
+
+                    postComments.ForEach(postComment =>
+                    {
+                        SearchAnswers(postComment, post.PostComments.ToList());
+                    });
+
+                    
+
+                    response.Add(new GetPostsResponseData
+                    {
+                        Id = post.Id,
+                        Post = post.Post,
+                        LikeCount = post.UserId != user.Id ? post.PostLikes.Count : 0,
+                        LikeUsers = post.UserId == user.Id
+                            ? post.PostLikes.Select(like => like.User.UserName).ToList()
+                            : new List<string>(),
+                        Comments = postComments
+                    });
+                });
+
+                return response;
             }
             catch (Exception e)
             {
                 WebApiLogger.LogException(e);
                 return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
             }
+        }
+
+        private void SearchAnswers(GetPostsResponseData.PostComment parentComment, List<PostComments> comments)
+        {
+            var answers = comments
+                .Where(x => x.ParentId == parentComment.Id)
+                .Select(x=> new GetPostsResponseData.PostComment
+                {
+                    Id = x.Id,
+                    UserName = x.User.UserName,
+                    Comment = x.Comment,
+                    Answers = new List<GetPostsResponseData.PostComment>()
+                })
+                .ToList();
+
+            parentComment.Answers.AddRange(answers);
+            comments.RemoveAll(comment => answers.Exists(answer => answer.Id == comment.Id));
+
+            parentComment.Answers.ForEach(answer => SearchAnswers(answer, comments));
         }
 
         /// <summary>

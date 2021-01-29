@@ -36,6 +36,10 @@ namespace TwitterApi.Core.Contracts.Post
         public class PostComment
         {
             /// <summary>
+            /// Идентификатор комментария
+            /// </summary>
+            public Guid Id { get; set; }
+            /// <summary>
             /// Имя пользователя написавшего комментарий
             /// </summary>
             public string UserName { get; set; }
