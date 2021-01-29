@@ -64,21 +64,82 @@ namespace TwitterApi.Core.Controllers
                 if (banEntity != null) return BadRequest("Вы забанены пользователем.");
 
                 var posts = await _dbContext.Posts
+                    .Include(x => x.PostComments)
+                        .ThenInclude(x => x.User)
+                    .Include(x => x.PostComments)
+                        .ThenInclude(x => x.CommentLikes)
+                            .ThenInclude(x => x.User)
+                    .Include(x => x.PostLikes)
+                        .ThenInclude(x => x.User)
                     .Where(x => x.UserId == user.Id)
-                    .OrderByDescending(x=>x.CreateDate)
+                    .OrderByDescending(x => x.CreateDate)
                     .ToListAsync();
 
-                return posts.Select(post => new GetUserPostsResponseData
+                var response = new List<GetUserPostsResponseData>();
+
+                posts.ForEach(post =>
                 {
-                    Id = post.Id,
-                    Post = post.Post
-                }).ToList();
+                    var postComments = post.PostComments
+                        .Where(comment => comment.ParentId == Guid.Empty)
+                        .Select(comment => new PostComment
+                        {
+                            Id = comment.Id,
+                            UserName = comment.User.UserName,
+                            Comment = comment.Comment,
+                            Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
+                            LikesCount = comment.CommentLikes.Count,
+                            Answers = new List<PostComment>()
+                        }).ToList();
+
+                    post.PostComments
+                        .ToList()
+                        .RemoveAll(postComment => postComments.Exists(x => x.Id == postComment.Id));
+
+                    postComments.ForEach(postComment =>
+                    {
+                        SearchAnswers(postComment, post.PostComments.ToList());
+                    });
+
+                    response.Add(new GetUserPostsResponseData()
+                    {
+                        Id = post.Id,
+                        Post = post.Post,
+                        LikeCount = post.UserId != user.Id ? post.PostLikes.Count : 0,
+                        LikeUsers = post.UserId == user.Id
+                            ? post.PostLikes.Select(like => like.User.UserName).ToList()
+                            : new List<string>(),
+                        Comments = postComments
+                    });
+                });
+
+                return response;
             }
             catch (Exception e)
             {
                 WebApiLogger.LogException(e);
                 return StatusCode(StatusCodes.Status500InternalServerError, ErrorDescription.InternalServerError);
             }
+        }
+
+        private void SearchAnswers(PostComment parentComment, List<PostComments> comments)
+        {
+            var answers = comments
+                .Where(comment => comment.ParentId == parentComment.Id)
+                .Select(comment => new PostComment
+                {
+                    Id = comment.Id,
+                    UserName = comment.User.UserName,
+                    Comment = comment.Comment,
+                    Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
+                    LikesCount = comment.CommentLikes.Count,
+                    Answers = new List<PostComment>()
+                })
+                .ToList();
+
+            parentComment.Answers.AddRange(answers);
+            comments.RemoveAll(comment => answers.Exists(answer => answer.Id == comment.Id));
+
+            parentComment.Answers.ForEach(answer => SearchAnswers(answer, comments));
         }
 
         /// <summary>

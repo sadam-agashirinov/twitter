@@ -106,14 +106,14 @@ namespace TwitterApi.Core.Controllers
                 {
                     var postComments = post.PostComments
                         .Where(comment => comment.ParentId == Guid.Empty)
-                        .Select(comment => new GetPostsResponseData.PostComment
+                        .Select(comment => new PostComment
                         {
                             Id = comment.Id,
                             UserName = comment.User.UserName,
                             Comment = comment.Comment,
                             Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
                             LikesCount = comment.CommentLikes.Count,
-                            Answers = new List<GetPostsResponseData.PostComment>()
+                            Answers = new List<PostComment>()
                         }).ToList();
 
                     post.PostComments
@@ -146,18 +146,18 @@ namespace TwitterApi.Core.Controllers
             }
         }
 
-        private void SearchAnswers(GetPostsResponseData.PostComment parentComment, List<PostComments> comments)
+        private void SearchAnswers(PostComment parentComment, List<PostComments> comments)
         {
             var answers = comments
                 .Where(comment => comment.ParentId == parentComment.Id)
-                .Select(comment => new GetPostsResponseData.PostComment
+                .Select(comment => new PostComment
                 {
                     Id = comment.Id,
                     UserName = comment.User.UserName,
                     Comment = comment.Comment,
                     Likers = comment.CommentLikes.Select(like => like.User.UserName).ToList(),
                     LikesCount = comment.CommentLikes.Count,
-                    Answers = new List<GetPostsResponseData.PostComment>()
+                    Answers = new List<PostComment>()
                 })
                 .ToList();
 
